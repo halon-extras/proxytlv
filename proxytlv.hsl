@@ -1,0 +1,77 @@
+class ProxyTLV
+{
+	private $tlv = [];
+
+	constructor($proxytlv)
+	{
+		$tlv = [];
+		$x = 0;
+		$l = length($proxytlv);
+		while ($x < $l)
+		{
+			$p = unpack("Cn", $proxytlv, $x);
+
+			if ($x + 3 + $p[1] > $l)
+				throw Exception("Bad ProxyTLV data");
+
+			$t = $p[0];
+			if ($t == 0x04) // NOOP
+			{
+				$x += 3 + $p[1];
+				continue;
+			}
+
+			$v = $proxytlv[$x + 3:$x + 3 + $p[1]];
+			$this->tlv[match ($t) {
+				0x01 => "ALPN",
+				0x02 => "AUTHORITY",
+				0x03 => "CRC32C",
+				0x05 => "UNIQUE_ID",
+				0x20 => "SSL",
+				0x30 => "NETNS",
+				default => $t
+			}] = match ($t) {
+				0x03 => unpack("N", $v)[0],
+				0x20 => match (unpack("C", $v)[0] & 0x1) {
+					0x0 => false,
+					0x1 => function($ssltlv) {
+						$tlv = [];
+						$x = 0;
+						$l = length($ssltlv);
+						while ($x < $l)
+						{
+							$p = unpack("Cn", $ssltlv, $x);
+							if ($x + 3 + $p[1] > $l)
+								throw Exception("Bad ProxyTLV data");
+							$t = $p[0];
+							$v = $ssltlv[$x + 3:$x + 3 + $p[1]];
+							$tlv[match ($t) {
+								0x21 => "VERSION",
+								0x22 => "CN",
+								0x23 => "CIPHER",
+								0x24 => "SIG_ALG",
+								0x25 => "KEY_ALG",
+								default => $t
+							}] = match ($t) {
+								default => $v
+							};
+							$x += 3 + $p[1];
+						}
+						return $tlv;
+					} ($v[5:])
+				},
+				default => $v
+			};
+			$x += 3 + $p[1];
+		}
+		return $tlv;
+	}
+	function value($type)
+	{
+		return $this->tlv[$type];
+	}
+	function types()
+	{
+		return array_keys($this->tlv);
+	}
+}
