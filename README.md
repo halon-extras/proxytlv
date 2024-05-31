@@ -57,7 +57,7 @@ Return the value of a type. For known type, the ``type`` argument should on in t
 This example will extract the AWS VPC endpoint service id from the [Network Load Balancer](https://docs.aws.amazon.com/elasticloadbalancing/latest/network/load-balancer-target-groups.html#proxy-protocol>).
 
 ```
-$data = ProxyTLV($string);
+$data = ProxyTLV($argument["proxytlv"]);
 if (($awsType = $data->value(0xEA)) and   // PP2_TYPE_AWS
     ($awsTypeUnpack = unpack("ca*", $awsType)) and
     ($awsTypeUnpack[0] == 0x01))          // PP2_SUBTYPE_AWS_VPCE_ID
