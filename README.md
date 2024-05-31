@@ -58,9 +58,9 @@ This example will extract the AWS VPC endpoint service id from the [Network Load
 
 ```
 $data = ProxyTLV($string);
-if (($awsType = $data->value(0xEA)) and            // PP2_TYPE_AWS
+if (($awsType = $data->value(0xEA)) and   // PP2_TYPE_AWS
     ($awsTypeUnpack = unpack("ca*", $awsType)) and
-	($awsTypeUnpack[0] == 0x01))                   // PP2_SUBTYPE_AWS_VPCE_ID
+    ($awsTypeUnpack[0] == 0x01))          // PP2_SUBTYPE_AWS_VPCE_ID
 {
 	echo $awsTypeUnpack[1];
 }
