@@ -1,6 +1,6 @@
-# PROXY Protocol v2 TLS Parser
+# PROXY Protocol v2 TLV Parser
 
-This plugin parses a PROXY protoocol v2 TLV list into readable representation. This class is often used to parse the connect hooks ``$arguments["proxytlv"]`` property.
+This plugin parses a PROXY protoocol v2 TLV (type-length-value) list into a readable representation. This class is intended to be used to parse the connect hooks ``$arguments["proxytlv"]`` property.
 
 ## Installation
 
@@ -38,7 +38,17 @@ An Exception is thrown
 
 #### value(type)
 
-Return the value of a type
+Return the value of a type. For known type, the ``type`` argument should on in the list.
+
+| Type      | Return            |                                       |
+|-----------|-------------------|---------------------------------------|
+| ALPN      | `string`          |                                       |
+| AUTHORITY | `string`          |                                       |
+| CRC32C    | `number`          |                                       |
+| UNIQUE_ID | `string`          |                                       |
+| SSL       | `array of string` | VERSION, CN, CIPHER, SIG_ALG, KEY_ALG |
+| NETNS     | `string`          |                                       |
+| `number`  | `string`          |                                       |
 
 **Returns**: the requested type if available
 
@@ -46,7 +56,7 @@ Return the value of a type
 
 #### types()
 
-Return all avilable types.
+Return all available types.
 
 **Returns**: list of types
 
